@@ -70,8 +70,8 @@
             <div class="card p-3">
                 <h6 class="text-muted">Global Sentiment</h6>
                 <h5>Nikkei 225 (Japan)</h5>
-                <div class="stat-val {{ 'text-success' if data.Nikkei225.change > 0 else 'text-danger' }}">
-                    {{ data.Nikkei225.change }}%
+                <div class="stat-val {{ 'text-success' if data.Nikkei225.change is not none and data.Nikkei225.change > 0 else 'text-danger' if data.Nikkei225.change is not none else '' }}">
+                    {{ data.Nikkei225.change if data.Nikkei225.change is not none else 'N/A' }}
                 </div>
                 <small>Asian Cues</small>
             </div>
@@ -100,8 +100,67 @@
     </div>
 
     <div class="text-center mt-4">
-        <button class="btn btn-primary" onclick="window.location.reload()">🔄 Refresh Analysis</button>
+        <button class="btn btn-primary" id="refresh-button">🔄 Refresh Analysis</button>
+        <div id="loading-spinner" style="display: none; margin-top: 10px;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
     </div>
+
+    <div class="text-end" id="current-time" style="font-size: 1.2rem; font-weight: bold; margin-bottom: 10px;"></div>
+
+    <script>
+        document.getElementById('refresh-button').addEventListener('click', function() {
+            const button = this;
+            const spinner = document.getElementById('loading-spinner');
+
+            console.log('Refresh button clicked'); // Debugging log
+
+            // Show loading spinner
+            spinner.style.display = 'block';
+            button.disabled = true;
+
+            fetch('/dashboard')
+                .then(response => {
+                    console.log('Response received:', response.status); // Debugging log
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    console.log('HTML content fetched'); // Debugging log
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newContent = doc.querySelector('.container');
+                    if (newContent) {
+                        document.querySelector('.container').innerHTML = newContent.innerHTML;
+                        console.log('Content updated successfully'); // Debugging log
+                    } else {
+                        console.error('No .container element found in the response');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing analysis:', error);
+                    alert('Failed to refresh analysis. Please try again later.');
+                })
+                .finally(() => {
+                    // Hide loading spinner and re-enable button
+                    spinner.style.display = 'none';
+                    button.disabled = false;
+                    console.log('Refresh process completed'); // Debugging log
+                });
+        });
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour12: false }) + ':' + now.getMilliseconds();
+            document.getElementById('current-time').textContent = timeString;
+        }
+        setInterval(updateTime, 50); // Update every 50ms
+        updateTime(); // Initial call to display time immediately
+    </script>
 </div>
 
 </body>
