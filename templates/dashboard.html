@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nifty 50 AI Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .card { border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .stat-val { font-size: 1.5rem; font-weight: bold; }
+        .pred-box { background: #212529; color: white; padding: 30px; border-radius: 10px; text-align: center; }
+        .gap-up { color: #28a745; }
+        .gap-down { color: #dc3545; }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <h2 class="text-center mb-3">🤖 Nifty 50 Opening Predictor</h2>
+            <p class="text-center text-muted">Live Analysis of Global Cues & GIFT Nifty</p>
+        </div>
+    </div>
+
+    <!-- PREDICTION HERO SECTION -->
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="pred-box mb-5">
+                <h4>Predicted Opening for Today</h4>
+                <h1 class="display-3 {{ 'gap-up' if pred.direction == 'GAP UP' else 'gap-down' }}">
+                    {{ pred.open_price }}
+                </h1>
+                <h3>
+                    {{ pred.direction }} 
+                    <span class="{{ 'gap-up' if pred.direction == 'GAP UP' else 'gap-down' }}">
+                        ({{ '+' if pred.gap_points > 0 else '' }}{{ pred.gap_points }} pts)
+                    </span>
+                </h3>
+                <p class="mt-3 opacity-75">Based on Gift Nifty @ {{ gift }} and Prev Close @ {{ data.Nifty50.price }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MARKET INDICATORS GRID -->
+    <div class="row">
+        <!-- Lead Indicator -->
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h6 class="text-muted">Lead Indicator</h6>
+                <h5>GIFT Nifty (Live)</h5>
+                <div class="stat-val text-primary">{{ gift }}</div>
+                <small>Futures Market</small>
+            </div>
+        </div>
+
+        <!-- Target -->
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h6 class="text-muted">Target Asset</h6>
+                <h5>Nifty 50 (Close)</h5>
+                <div class="stat-val">{{ data.Nifty50.price }}</div>
+                <small>Previous Close</small>
+            </div>
+        </div>
+
+        <!-- Sentiment -->
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h6 class="text-muted">Global Sentiment</h6>
+                <h5>Nikkei 225 (Japan)</h5>
+                <div class="stat-val {{ 'text-success' if data.Nikkei225.change > 0 else 'text-danger' }}">
+                    {{ data.Nikkei225.change }}%
+                </div>
+                <small>Asian Cues</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h6 class="text-muted">Volatility</h6>
+                <h5>India VIX</h5>
+                <div class="stat-val {{ 'text-danger' if data.IndiaVIX.price > 15 else 'text-success' }}">
+                    {{ data.IndiaVIX.price }}
+                </div>
+                <small>Risk Assessment</small>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h6 class="text-muted">Currency</h6>
+                <h5>USD/INR</h5>
+                <div class="stat-val">{{ data.USD_INR.price }}</div>
+                <small>Forex Impact</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <button class="btn btn-primary" onclick="window.location.reload()">🔄 Refresh Analysis</button>
+    </div>
+</div>
+
+</body>
+</html>
